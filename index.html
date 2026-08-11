@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>どこ食べルーレット</title>
+    <meta
+      name="description"
+      content="現在地周辺の飲食店をランダムで決定するWebアプリです。今日のランチやディナー、どこで食べるか迷ったらルーレットで外食を決めよう！"
+    />
+
+    <link
+      rel="icon"
+      href="https://www.food-roulette.jp/favicon.ico"
+      sizes="any"
+    />
+
+    <link
+      rel="icon"
+      href="https://www.food-roulette.jp/icon.png"
+      type="image/png"
+    />
+    <link rel="apple-touch-icon" href="https://www.food-roulette.jp/icon.png" />
+    <link rel="canonical" href="https://www.food-roulette.jp/" />
+    <!-- OGP (Open Graph Protocol) -->
+    <meta property="og:title" content="どこ食べルーレット" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.food-roulette.jp/" />
+    <meta
+      property="og:image"
+      content="https://www.food-roulette.jp/image.png"
+    />
+    <meta
+      property="og:description"
+      content="現在地周辺のお店をランダムで選んでくれるWEBアプリです。"
+    />
+    <meta property="og:site_name" content="外食ルーレット" />
+    <meta property="og:locale" content="ja_JP" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="どこ食べルーレット" />
+    <meta
+      name="twitter:description"
+      content="現在地周辺のお店をランダムで選んでくれるWEBアプリです。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://www.food-roulette.jp/image.png"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+      />
+    </noscript>
+
+    <meta
+      name="google-site-verification"
+      content="PMNbiqRRvyNg5xDd92y6Uw9gKxENMv1S2agnyT-RbkM"
+    />
+    <style>
+      :root {
+        --primary: #ff6b6b; /* 食欲の赤 */
+        --secondary: #feca57; /* 元気の黄色 */
+        --bg: #f7f1e3; /* 優しいクリーム色 */
+        --text: #2d3436;
+        --shadow: rgba(0, 0, 0, 0.15);
+      }
+
+      body {
+        font-family: "Zen Maru Gothic", sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      h1 {
+        font-family: "Mochiy Pop One", sans-serif;
+        color: var(--primary);
+        font-size: 2.25rem; /* 約48px */
+        text-shadow: 2px 2px 0px #fff;
+      }
+      h2 {
+        font-family: "Mochiy Pop One", sans-serif;
+        color: var(--primary);
+        font-size: 1rem; /* 約18px */
+        text-shadow: 2px 2px 0px #fff;
+      }
+
+      .htags {
+        margin-bottom: 5px;
+      }
+
+      /* 画面幅が600px以上（タブレット・PC）になったら上書き */
+      @media (min-width: 600px) {
+        h1 {
+          font-size: 3rem; /* 約48px */
+        }
+        h2 {
+          font-size: 1.5rem; /* 約48px */
+        }
+      }
+
+      /* .htagsクラスの中にある h1 と h2 の余白を調整する */
+      .htags h1 {
+        margin-bottom: 0px; /* タイトルの下の余白をなくす */
+        line-height: 1.5; /* 行間も少し詰める */
+      }
+
+      .htags h2 {
+        margin-top: 5px;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 500px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 25px var(--shadow);
+        margin-bottom: 20px;
+      }
+
+      /* ルーレット表示エリア */
+      #roulette-box {
+        background: #fff;
+        border: 4px solid var(--text);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #result-name {
+        font-family: "Mochiy Pop One", sans-serif;
+        font-size: 1.8rem;
+        line-height: 1.4;
+        color: var(--text);
+        z-index: 2;
+      }
+
+      #result-meta {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      /* アクションボタン */
+      .btn-main {
+        font-family: "Mochiy Pop One", sans-serif;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #c0392b; /* 立体的な影 */
+        transition: all 0.1s;
+        width: 80%;
+        max-width: 300px;
+      }
+
+      .btn-main:active {
+        box-shadow: 0 0 0 #c0392b;
+        transform: translateY(6px); /* 押した時に沈む */
+      }
+
+      .btn-main:disabled {
+        background: #ccc;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      /* 結果が出た後のボタン類 */
+      .action-area {
+        display: none; /* 最初は隠す */
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .btn-sub {
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        font-size: 0.9rem;
+        transition: transform 0.2s;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-map {
+        background: #4285f4;
+        color: white;
+        box-shadow: 0 4px 0 #2a56c6;
+      }
+      .btn-share {
+        background: #000;
+        color: white;
+        box-shadow: 0 4px 0 #333;
+      }
+
+      .btn-save-image {
+        background: linear-gradient(135deg, #ff6b6b, #feca57);
+        color: white;
+        box-shadow: 0 4px 0 #cc5555;
+      }
+
+      .share-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .share-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .share-hint {
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 5px;
+      }
+
+      .btn-sub:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+
+      .btn-sub:hover {
+        opacity: 0.9;
+      }
+
+      /* 装飾的な背景パターン */
+      .bg-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+          var(--secondary) 2px,
+          transparent 2px
+        );
+        background-size: 20px 20px;
+        opacity: 0.3;
+        z-index: -1;
+      }
+
+      /* 評価の星 */
+      .rating {
+        color: #f1c40f;
+        font-size: 1.2rem;
+      }
+
+      /* 地図は隠しておく */
+      #map {
+        height: 0;
+        opacity: 0;
+      }
+      /* トグルスイッチのデザイン */
+      .toggle-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px; /* ボタンとの間隔 */
+      }
+
+      /* チェックボックス自体は隠す */
+      #open-now-toggle {
+        display: none;
+      }
+
+      /* スイッチの背景 */
+      .toggle-button {
+        position: relative;
+        width: 50px;
+        height: 26px;
+        background-color: #ccc; /* OFFのときの色 */
+        border-radius: 13px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      /* スイッチの丸い部分 */
+      .toggle-button::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* ONになったときの変化 */
+      #open-now-toggle:checked + .toggle-button {
+        background-color: var(--primary); /* テーマカラー（赤） */
+      }
+
+      #open-now-toggle:checked + .toggle-button::after {
+        transform: translateX(24px); /* 丸を右に移動 */
+      }
+
+      .toggle-text {
+        font-weight: bold;
+        color: var(--text);
+      }
+
+      /* 設定エリア */
+      .settings-area {
+        margin: 20px 0;
+        text-align: left;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+      }
+
+      .setting-row {
+        margin-bottom: 15px;
+      }
+
+      .setting-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .setting-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      /* レンジスライダー */
+      .range-slider {
+        width: 100%;
+        -webkit-appearance: none;
+        height: 8px;
+        border-radius: 5px;
+        background: #ddd;
+        outline: none;
+        margin-bottom: 5px;
+      }
+
+      .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+      }
+
+      .range-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: none;
+      }
+
+      .range-value {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      /* セレクトボックス */
+      select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        font-family: inherit;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+      }
+
+      /* 履歴エリア */
+      .history-section {
+        margin-top: 20px;
+        padding: 15px;
+        background: #fff3cd;
+        border-radius: 10px;
+        text-align: left;
+      }
+
+      .history-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .history-list {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .history-item {
+        padding: 8px;
+        background: white;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .clear-history {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 0.8rem;
+        text-decoration: underline;
+      }
+
+      .btn-retry {
+        background: var(--secondary);
+        color: var(--text);
+        box-shadow: 0 4px 0 #d4a017;
+      }
+
+      .history-empty {
+        color: #999;
+        font-size: 0.85rem;
+        text-align: center;
+        padding: 10px;
+      }
+
+      /* Q&A */
+      .qa-section {
+        max-width: 500px;
+        width: 100%;
+        margin-bottom: 20px;
+        text-align: left;
+      }
+
+      .qa-section h2 {
+        font-size: 1.4rem;
+        text-align: center;
+      }
+
+      .qa-item {
+        margin-bottom: 10px;
+        background: white;
+        border: 2px solid var(--secondary);
+        border-radius: 12px;
+        box-shadow: 0 4px 10px var(--shadow);
+        overflow: hidden;
+      }
+
+      .qa-item summary {
+        padding: 14px 16px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .qa-answer {
+        margin: 0;
+        padding: 0 16px 16px;
+        line-height: 1.7;
+      }
+
+      .qa-answer a {
+        color: var(--primary);
+        font-weight: bold;
+      }
+
+      /* フッター全体のスタイル */
+      footer {
+        width: 100%;
+        margin-top: auto; /* これが重要：自動で一番下まで押し下げる */
+        background-color: #eee;
+        color: #666;
+        padding: 20px 0;
+        font-size: 0.8rem;
+      }
+
+      .footer-content {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 0 20px;
+        text-align: center;
+      }
+
+      /* リンクの色 */
+      footer a {
+        color: var(--primary); /* テーマカラーに合わせる */
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .footer-links {
+        margin: 10px 0;
+      }
+
+      .footer-links a {
+        display: inline-block;
+        margin: 4px 8px;
+      }
+
+      .copyright {
+        color: #999;
+        font-size: 0.7rem;
+        margin-top: 10px;
+      }
+    </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "どこ食べルーレット",
+        "alternateName": ["ルーレットで外食を決めよう", "外食ルーレット"],
+        "url": "https://www.food-roulette.jp/",
+        "description": "現在地周辺の飲食店をランダムで決定するWebアプリ。今日の外食どこ行くか決まらない？それならルーレットで決めましょう！",
+        "publisher": {
+          "@type": "Organization",
+          "name": "どこ食べルーレット運営",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.food-roulette.jp/favicon.ico"
+          }
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.food-roulette.jp/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="bg-pattern" style="margin: 5px 0"></div>
+    <div class="htags">
+      <h1>どこ食べルーレット</h1>
+      <h2>ルーレットで外食を決めよう！</h2>
+    </div>
+    <p>
+      今日の外食が決まらない？<br />
+      ルーレットで現在地周辺のグルメを決定します
+    </p>
+
+    <div class="container">
+      <div id="roulette-box">
+        <div id="result-name">？？？</div>
+        <div id="result-meta">ボタンを押してスタート！</div>
+      </div>
+
+      <!-- 設定エリア -->
+      <div class="settings-area">
+        <div class="setting-row">
+          <label class="setting-label">検索範囲</label>
+          <input
+            type="range"
+            id="radius-slider"
+            class="range-slider"
+            min="500"
+            max="3000"
+            step="500"
+            value="1000"
+            oninput="updateRadiusValue()"
+          />
+          <div class="range-value">
+            現在: <span id="radius-value">1000</span>m
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label class="setting-label" for="genre-select"
+            >ジャンル (ざっくり)</label
+          >
+          <select id="genre-select">
+            <option value="">すべて</option>
+            <option value="和食">和食</option>
+            <option value="洋食">洋食</option>
+            <option value="中華">中華料理</option>
+            <option value="イタリアン">イタリアン</option>
+            <option value="フレンチ">フレンチ</option>
+            <option value="カフェ">カフェ</option>
+            <option value="ラーメン">ラーメン</option>
+            <option value="焼肉">焼肉</option>
+            <option value="寿司">寿司</option>
+            <option value="居酒屋">居酒屋</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="toggle-wrapper">
+            <input type="checkbox" id="open-now-toggle" checked />
+            <label for="open-now-toggle" class="toggle-button"></label>
+            <span class="toggle-text">営業中のお店のみ</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="start-btn" class="btn-main" onclick="startRoulette()">
+        お店を決める！
+      </button>
+
+      <div id="action-area" class="action-area">
+        <a id="map-link" href="#" target="_blank" class="btn-sub btn-map"
+          >📍 Googleマップで行く</a
+        >
+        <a id="share-link" href="#" target="_blank" class="btn-sub btn-share"
+          >𝕏 結果をシェア</a
+        >
+      </div>
+
+      <div id="result-im-ad-area" style="display: none; margin-top: 20px">
+        <div id="im-a808127e3c8f45f5b89e6bec3b953c2e">
+          <script
+            async
+            src="https://imp-adedge.i-mobile.co.jp/script/v1/spot.js?20220104"
+          ></script>
+          <script>
+            (window.adsbyimobile = window.adsbyimobile || []).push({
+              pid: 84353,
+              mid: 589447,
+              asid: 1940421,
+              type: "banner",
+              display: "inline",
+              elementid: "im-a808127e3c8f45f5b89e6bec3b953c2e",
+            });
+          </script>
+        </div>
+      </div>
+
+      <div id="result-ad-area" style="display: none; margin-top: 20px">
+        <a> PR: 飲食店を予約するなら👇 </a><br />
+        <a
+          href="https://px.a8.net/svt/ejp?a8mat=45KHCS+YJ5V6+4EI4+BYDTT"
+          rel="nofollow"
+        >
+          <img
+            border="0"
+            width="320"
+            height="50"
+            alt=""
+            src="https://www22.a8.net/svt/bgt?aid=251218396058&wid=001&eno=01&mid=s00000020542002008000&mc=1"
+        /></a>
+        <img
+          border="0"
+          width="1"
+          height="1"
+          src="https://www16.a8.net/0.gif?a8mat=45KHCS+YJ5V6+4EI4+BYDTT"
+          alt=""
+        />
+      </div>
+      <!-- シェア画像生成用Canvas（非表示） -->
+      <canvas
+        id="share-canvas"
+        width="1200"
+        height="630"
+        style="display: none"
+      ></canvas>
+
+      <!-- 履歴セクション -->
+      <div class="history-section">
+        <div class="history-title">
+          <span>📜 履歴</span>
+          <button class="clear-history" onclick="clearHistory()">クリア</button>
+        </div>
+        <div id="history-list" class="history-list">
+          <div class="history-empty">まだ履歴がありません</div>
+        </div>
+      </div>
+    </div>
+
+    <section class="qa-section" aria-labelledby="qa-title">
+      <h2 id="qa-title">よくあるQ&amp;A</h2>
+
+      <details class="qa-item">
+        <summary>Q. 誰が運営してる？</summary>
+        <p class="qa-answer">
+          A. どこかの大学の工学部生である
+          <a
+            href="https://x.com/ibkmakomanai"
+            target="_blank"
+            rel="noopener noreferrer"
+            >@ibkmakomanai</a
+          >
+          が運営してます！
+        </p>
+      </details>
+
+      <details class="qa-item">
+        <summary>Q. 位置情報は保存される？</summary>
+        <p class="qa-answer">
+          A. 位置情報は保存されず、私からは見れない仕組みになってますので安心してください！<br />
+          コードを公開していますので、<a
+            href="https://github.com/Ibkmakomanai/food-roulette"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHubリポジトリ</a
+          >をご覧ください。
+        </p>
+      </details>
+    </section>
+
+    <!-- 広告エリア -->
+    <div
+      id="im-0279df6502b54b76b35f73490f5b6d31"
+      style="width: 100%; max-width: 500px"
+    >
+      <script
+        async
+        src="https://imp-adedge.i-mobile.co.jp/script/v1/spot.js?20220104"
+      ></script>
+      <script>
+        (window.adsbyimobile = window.adsbyimobile || []).push({
+          pid: 84353,
+          mid: 589447,
+          asid: 1919169,
+          type: "banner",
+          display: "inline",
+          elementid: "im-0279df6502b54b76b35f73490f5b6d31",
+        });
+      </script>
+    </div>
+
+    <div
+      id="im-20dd4926026248f98fde7e2282e3b351"
+      style="width: 100%; max-width: 500px"
+    >
+      <script
+        async
+        src="https://imp-adedge.i-mobile.co.jp/script/v1/spot.js?20220104"
+      ></script>
+      <script>
+        (window.adsbyimobile = window.adsbyimobile || []).push({
+          pid: 84353,
+          mid: 589446,
+          asid: 1919162,
+          type: "banner",
+          display: "inline",
+          elementid: "im-20dd4926026248f98fde7e2282e3b351",
+        });
+      </script>
+    </div>
+
+    <div id="map" style="margin: 5px 0"></div>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD38YvZGary_bXCCIK6htsCJ1L1TjjEQz4&libraries=places&callback=initMap"
+      async
+      defer
+    ></script>
+
+    <script>
+      let map;
+      let service;
+      const resultName = document.getElementById("result-name");
+      const resultMeta = document.getElementById("result-meta");
+      const actionArea = document.getElementById("action-area");
+      const startBtn = document.getElementById("start-btn");
+      let currentResults = []; // 現在の検索結果を保持
+      let excludedPlaceIds = []; // 除外するお店のID
+      let currentPlace = null; // 現在表示中のお店
+
+      // ▼ 追加：前回の検索条件を保持する変数
+      let lastSearchOptions = { radius: null, genre: null, openNow: null };
+
+      // 履歴管理
+      function loadHistory() {
+        const history = localStorage.getItem("restaurantHistory");
+        return history ? JSON.parse(history) : [];
+      }
+
+      function saveToHistory(place) {
+        let history = loadHistory();
+        const historyItem = {
+          name: place.name,
+          vicinity: place.vicinity,
+          placeId: place.place_id,
+          timestamp: new Date().toISOString(),
+        };
+
+        // 同じお店が既に履歴にある場合は削除（最新を上に）
+        history = history.filter((item) => item.placeId !== place.place_id);
+        history.unshift(historyItem);
+
+        // 最大10件まで保存
+        if (history.length > 10) {
+          history = history.slice(0, 10);
+        }
+
+        localStorage.setItem("restaurantHistory", JSON.stringify(history));
+        displayHistory();
+      }
+
+      function displayHistory() {
+        const history = loadHistory();
+        const historyList = document.getElementById("history-list");
+
+        if (history.length === 0) {
+          historyList.innerHTML =
+            '<div class="history-empty">まだ履歴がありません</div>';
+          return;
+        }
+
+        historyList.innerHTML = history
+          .map((item) => {
+            const date = new Date(item.timestamp);
+            const dateStr = `${
+              date.getMonth() + 1
+            }/${date.getDate()} ${date.getHours()}:${String(
+              date.getMinutes(),
+            ).padStart(2, "0")}`;
+            return `
+            <div class="history-item">
+              <div>
+                <strong>${item.name}</strong><br>
+                <small style="color: #666;">${item.vicinity}</small>
+              </div>
+              <small style="color: #999;">${dateStr}</small>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      function clearHistory() {
+        if (confirm("履歴をすべて削除しますか？")) {
+          localStorage.removeItem("restaurantHistory");
+          displayHistory();
+        }
+      }
+
+      function updateRadiusValue() {
+        const slider = document.getElementById("radius-slider");
+        document.getElementById("radius-value").innerText = slider.value;
+      }
+
+      function retryWithExclusion() {
+        if (currentPlace) {
+          excludedPlaceIds.push(currentPlace.place_id);
+          console.log("除外リスト:", excludedPlaceIds);
+        }
+
+        if (currentResults.length > excludedPlaceIds.length) {
+          const availableResults = currentResults.filter(
+            (place) => !excludedPlaceIds.includes(place.place_id),
+          );
+
+          if (availableResults.length > 0) {
+            runAnimation(availableResults);
+          } else {
+            alert("他に候補がありません。条件を変えて再検索してください。");
+          }
+        } else {
+          alert("他に候補がありません。条件を変えて再検索してください。");
+        }
+      }
+
+      // ページ読み込み時に履歴を表示
+      window.addEventListener("DOMContentLoaded", () => {
+        displayHistory();
+      });
+
+      function initMap() {
+        const center = new google.maps.LatLng(35.6895, 139.6917);
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: center,
+          zoom: 15,
+        });
+        service = new google.maps.places.PlacesService(map);
+        console.log("Google Maps API initialized successfully");
+      }
+
+      function startRoulette() {
+        // Google Maps APIが初期化されているか確認
+        if (!map || !service) {
+          handleError(
+            "Google Maps APIの読み込み中です。<br>少し待ってからもう一度お試しください。",
+          );
+          setTimeout(() => {
+            startBtn.disabled = false;
+          }, 2000);
+          return;
+        }
+
+        // ▼ 追加：現在のUIの検索設定を取得
+        const currentIsOpenNow =
+          document.getElementById("open-now-toggle").checked;
+        const currentRadius = parseInt(
+          document.getElementById("radius-slider").value,
+        );
+        const currentGenre = document.getElementById("genre-select").value;
+
+        // ▼ 追加：条件が前回と同じで、すでに結果データがある場合はAPIを叩かずに使い回す
+        if (
+          currentResults.length > 0 &&
+          lastSearchOptions.radius === currentRadius &&
+          lastSearchOptions.genre === currentGenre &&
+          lastSearchOptions.openNow === currentIsOpenNow
+        ) {
+          console.log(
+            "検索条件が同じため、APIをスキップしてキャッシュを利用します",
+          );
+          startBtn.disabled = true;
+          actionArea.style.display = "none";
+          // 即座にルーレット演出へ
+          runAnimation(currentResults);
+          return; // ここで処理を終了させる（下の位置情報取得には進まない）
+        }
+
+        // --- 既存の処理（UIのリセット） ---
+        startBtn.disabled = true;
+        actionArea.style.display = "none";
+        resultName.innerText = "検索中...";
+        resultMeta.innerText = "位置情報を取得しています";
+        excludedPlaceIds = []; // 除外リストをリセット
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+              searchNearbyRestaurants(pos);
+            },
+            () => {
+              handleError(
+                "位置情報の取得に失敗しました。<br>ブラウザの設定を確認してください。",
+              );
+            },
+          );
+        } else {
+          handleError("お使いのブラウザは対応していません。");
+        }
+      }
+
+      function searchNearbyRestaurants(location) {
+        resultName.innerText = "お店を探しています...";
+
+        // 設定の取得
+        const isOpenNow = document.getElementById("open-now-toggle").checked;
+        const radius = parseInt(document.getElementById("radius-slider").value);
+        const genre = document.getElementById("genre-select").value;
+
+        const request = {
+          location: location,
+          radius: radius,
+          type: "restaurant",
+          keyword: genre || "食事", // ジャンルが選択されていればそれを使用
+        };
+
+        // チェックが入っている時だけ openNow を true にする
+        if (isOpenNow) {
+          request.openNow = true;
+        }
+
+        service.nearbySearch(request, (results, status) => {
+          console.log(
+            "検索条件 - 営業中:",
+            isOpenNow,
+            "範囲:",
+            radius + "m",
+            "ジャンル:",
+            genre || "すべて",
+            "ヒット件数:",
+            results ? results.length : 0,
+          );
+
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            results.length > 0
+          ) {
+            currentResults = results; // 結果を保存
+
+            // ▼ 追加：検索が成功したら、今回の条件を保存しておく
+            lastSearchOptions = {
+              radius: radius,
+              genre: genre,
+              openNow: isOpenNow,
+            };
+
+            runAnimation(results);
+          } else {
+            // エラー表示
+            let errorMsg = "近くにお店が見つかりませんでした。";
+            if (isOpenNow) {
+              errorMsg +=
+                "<br>（「営業中のみ」を外すと見つかるかもしれません）";
+            }
+            if (genre) {
+              errorMsg += "<br>（ジャンルを変更してみてください）";
+            }
+            handleError(errorMsg);
+          }
+        });
+      }
+
+      function runAnimation(results) {
+        let count = 0;
+        const maxCount = 30; // ルーレットが回る回数
+
+        // ドラムロールのような演出
+        const interval = setInterval(() => {
+          const randomPlace =
+            results[Math.floor(Math.random() * results.length)];
+          resultName.innerText = randomPlace.name;
+          resultName.style.transform = `scale(${1 + Math.random() * 0.1})`; // 文字をプルプルさせる
+          resultMeta.innerText = "抽選中...";
+          count++;
+
+          if (count > maxCount) {
+            clearInterval(interval);
+            resultName.style.transform = "scale(1)";
+            const winner = results[Math.floor(Math.random() * results.length)];
+            showFinalResult(winner);
+          }
+        }, 80); // 0.08秒間隔
+      }
+
+      function showFinalResult(place) {
+        currentPlace = place; // 現在のお店を保存
+
+        // 結果表示
+        resultName.innerHTML = `<span style="color:#ff4757;">👑 ${place.name}</span>`;
+
+        const rating = place.rating
+          ? `<span class="rating">★${place.rating}</span>`
+          : "";
+        const price = place.price_level ? "💰".repeat(place.price_level) : "";
+
+        resultMeta.innerHTML = `${rating} ${price}<br>${place.vicinity}`;
+
+        // Google Mapリンク
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          place.name,
+        )}&query_place_id=${place.place_id}`;
+        document.getElementById("map-link").href = mapUrl;
+
+        // X (Twitter) シェアリンク作成
+        const shareText = `今日の運命のランチは「${place.name}」に決まりました！🍽️ #どこ食べルーレット`;
+        const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText,
+        )}&url=${encodeURIComponent(location.href)}`;
+        document.getElementById("share-link").href = shareUrl;
+
+        // ボタン類の更新（リンク設定後に表示）
+        startBtn.innerText = "もう一度やる";
+        startBtn.disabled = false;
+        actionArea.style.display = "flex";
+        document.getElementById("result-ad-area").style.display = "block";
+
+        console.log("ボタン表示:", actionArea.style.display); // デバッグ用
+
+        // 履歴に保存
+        saveToHistory(place);
+      }
+
+      function handleError(msg) {
+        resultName.innerHTML = "エラー";
+        resultMeta.innerHTML = msg;
+        startBtn.disabled = false;
+        startBtn.innerText = "もう一度やる";
+      }
+    </script>
+
+    <footer>
+      <div class="footer-content">
+        <div class="disclaimer">
+          <p><strong>【どこ食べルーレットとは？】</strong></p>
+          <p>
+            「今日のランチ、どこに食べに行く？」と迷った時に、現在地周辺の飲食店をランダムで決定するWebアプリです。
+            外食先が決まらない時や、いつもと違うお店を開拓したい時に、運命の一店をルーレットでご提案します。
+          </p>
+
+          <p><strong>【プライバシーポリシー】</strong></p>
+          <p>
+            当サイトは、現在地周辺の飲食店を検索するために位置情報を利用します。
+            取得した情報はGoogle Maps
+            APIを使用した店舗検索のみに利用され、サイト運営者がユーザの位置情報やルーレットの結果及び履歴を保存・閲覧することは一切ありません。
+          </p>
+
+          <p><strong>【免責事項】</strong></p>
+          <p>
+            掲載されている店舗情報はGoogle Maps
+            APIを利用しています。営業時間や定休日が実際と異なる場合がありますので、来店の際は店舗へ直接ご確認ください。当サイトの利用により生じた損害について、運営者は一切の責任を負いません。
+          </p>
+        </div>
+
+        <div class="footer-links" aria-label="開発・運営情報">
+          <p><strong>【開発・運営情報】</strong></p>
+          <a
+            href="https://x.com/ibkmakomanai"
+            target="_blank"
+            rel="noopener noreferrer"
+            >X: @ibkmakomanai</a
+          >
+          <a
+            href="https://github.com/Ibkmakomanai/food-roulette"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub: Ibkmakomanai/food-roulette</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
