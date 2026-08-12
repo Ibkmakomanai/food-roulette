@@ -726,14 +726,18 @@
             rel="noopener noreferrer"
             >@ibkmakomanai</a
           >
-          が運営してます！
+          が開発・運営してます！
         </p>
       </details>
 
       <details class="qa-item">
-        <summary>Q. 位置情報は保存される？</summary>
+        <summary>Q. 位置情報は開発者から見える？</summary>
         <p class="qa-answer">
-          A. 位置情報は保存されず、私からは見れない仕組みになってますので安心してください！<br />
+          A. 位置情報は周辺のお店を検索するためにGoogle Maps
+          APIへ送信されます。<br />
+          当サイトのサーバーには送信・保存しておらず、開発者が正確な現在地を閲覧する機能はありませんので安心してご利用ください。<br />
+          ルーレットの結果履歴のみ、お使いのブラウザ内に保存されます。<br />
+          なお、Cloudflare、Googleおよび広告配信事業者のi-mobileには、通常のアクセスに伴うIPアドレスなどの情報が送信される場合があります。<br />
           コードを公開していますので、<a
             href="https://github.com/Ibkmakomanai/food-roulette"
             target="_blank"
@@ -1091,6 +1095,7 @@
         startBtn.innerText = "もう一度やる";
         startBtn.disabled = false;
         actionArea.style.display = "flex";
+        document.getElementById("result-im-ad-area").style.display = "block";
         document.getElementById("result-ad-area").style.display = "block";
 
         console.log("ボタン表示:", actionArea.style.display); // デバッグ用
